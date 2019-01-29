@@ -1,4 +1,4 @@
-#Sorting in C
+# Sorting in C
 Here I play with some sorting algorithms.
 
 Usage: sorting <num>
@@ -17,7 +17,7 @@ is suppressed.
 Note - each algorithm is actually run twice - once to print intermediate output
 and a second time with no printed output during which it is timed.
 
-#Why
+# Why
 
 I wanted to practice writing these algorithms and writing some C as it's been some
 time since I did so.
@@ -39,7 +39,7 @@ Also, it shows off just how powerful a merge sort is compared to the others:
     Merge Sort
     Time elapsed = 44.090271ms
 
-#Sample Output
+# Sample Output
     Sort test
     Array size is 10
 
