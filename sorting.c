@@ -30,8 +30,7 @@ int main(int argc,  char* argv[])
     }
 
     int original_array[array_size];
-    int working_array[array_size];
-
+    
     srand(time(NULL));
     for (int i= 0 ; i < array_size; i++)
     {
