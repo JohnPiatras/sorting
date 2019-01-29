@@ -16,7 +16,7 @@ void print_array(int a[], const int n, const int i_red, const int i_green);
 void copy_array(const int source[], int dest[], const int n);
 int rand_range(const int m, const int n);
 
-float timed_sort( void (*f)(int a[], const int n, bool print_output), int a[], const int n );
+void test_sort_function(char name[], void (*f)(int a[], const int n, bool print_output), const int a[], const int n );
 
 void bubble_sort(int a[], const int n, bool print_output);
 void selection_sort(int a[], const int n, bool print_output);
@@ -46,37 +46,14 @@ int main(int argc,  char* argv[])
     }
 
     float dT;
-
+    void (*sort_functions[])(int a[], const int n, bool print_output) = {bubble_sort, selection_sort};
     printf("Sort test\n");
     printf("Array size is %i\n\n", array_size);
 
-    copy_array(original_array, working_array, array_size);
-    printf("Bubble sort\n");
-    if(array_size <= 40)bubble_sort(working_array, array_size, true);
-    copy_array(original_array, working_array, array_size);
-    dT = timed_sort(bubble_sort, working_array, array_size);
-    printf("Time elapsed = %fms\n\n", dT);
-
-    copy_array(original_array, working_array, array_size);
-    printf("Selection sort\n");
-    if(array_size <= 40)selection_sort(working_array, array_size, true);
-    copy_array(original_array, working_array, array_size);
-    dT = timed_sort(selection_sort, working_array, array_size);
-    printf("Time elapsed = %fms\n\n", dT);
-
-    copy_array(original_array, working_array, array_size);
-    printf("Insertion sort\n");
-    if(array_size <= 40)insertion_sort(working_array, array_size, true);
-    copy_array(original_array, working_array, array_size);
-    dT = timed_sort(insertion_sort, working_array, array_size);
-    printf("Time elapsed = %fms\n\n", dT);
-
-    copy_array(original_array, working_array, array_size);
-    printf("Merge sort\n");
-    if(array_size <= 40)merge_sort(working_array, array_size, true);
-    copy_array(original_array, working_array, array_size);
-    dT = timed_sort(merge_sort, working_array, array_size);
-    printf("Time elapsed = %fms\n\n", dT);    
+    test_sort_function("Bubble Sort", bubble_sort, original_array, array_size);    
+    test_sort_function("Selection Sort", selection_sort, original_array, array_size);   
+    test_sort_function("Insertion Sort", insertion_sort, original_array, array_size);   
+    test_sort_function("Merge Sort", merge_sort, original_array, array_size);   
 }
 
 int rand_range(const int m, const int n)
@@ -112,15 +89,30 @@ void copy_array(const int source[], int dest[], int n)
     }
 }
 
-
-float timed_sort( void (*f)(int a[], const int n, bool print_output), int a[], const int n)
+// This helper function runs a sort function and times it
+// char name[] - function name (eg 'Bubble Sort')
+// void(*f)... - pointer to the sorting function
+// const int a[] - array of integers to be sorted
+// const int n - the size of the above array
+// The original integer array will not be modified. A copy is used.
+void test_sort_function(char name[], void (*f)(int a[], const int n, bool print_output), const int a[], const int n)
 {
+    int working_array[n];
+
+    copy_array(a, working_array, n);
+
+    printf("%s\n", name);
+    if(n <= 40)f(working_array, n, true);
+
+    copy_array(a, working_array, n);    
+
     float startTime, endTime, dT;
     startTime = (float)clock()/CLOCKS_PER_SEC;
-    f(a, n, false);
+    f(working_array, n, false);
     endTime = (float)clock()/CLOCKS_PER_SEC;
     dT = 1000.0 * (endTime - startTime);
-    return dT;
+    printf("Time elapsed = %fms\n\n", dT);
+    
 }
 
 void bubble_sort(int a[], const int n, bool print_output)
