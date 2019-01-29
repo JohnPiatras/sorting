@@ -1,13 +1,13 @@
 # Sorting in C
 Here I play with some sorting algorithms.
 
-Usage: sorting <num>
+Usage: sorting [num]
 
-Where <num> is an integer greater than 0.
+Where [num] is an integer greater than 0.
 
 If no integer is supplied the default of 25 will be used.
 
-The program generates an array of <num> random integers from 1 to 100
+The program generates an array of [num] random integers from 1 to 100
 and sorts them using bubble sort, selection sort, insertion sort and merge sort.
 
 Intermediate steps are printed along with total time to sort for each algorithm
