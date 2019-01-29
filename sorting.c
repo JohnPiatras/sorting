@@ -6,11 +6,6 @@
 // colour codes courtesy of https://stackoverflow.com/questions/3219393/stdlib-and-colored-output-in-c/3219471
 #define ANSI_COLOR_RED     "\x1b[31m"
 #define ANSI_COLOR_GREEN   "\x1b[32m"
-#define ANSI_COLOR_YELLOW  "\x1b[33m"
-#define ANSI_COLOR_BLUE    "\x1b[34m"
-#define ANSI_COLOR_MAGENTA "\x1b[35m"
-#define ANSI_COLOR_CYAN    "\x1b[36m"
-#define ANSI_COLOR_RESET   "\x1b[0m"
 
 void print_array(int a[], const int n, const int i_red, const int i_green);
 void copy_array(const int source[], int dest[], const int n);
@@ -23,11 +18,9 @@ void selection_sort(int a[], const int n, bool print_output);
 void insertion_sort(int a[], const int n, bool print_output);
 void merge_sort(int a[], const int n, bool print_output);
 
-bool suppress_output = true;
-
 int main(int argc,  char* argv[])
 {    
-    int array_size;// = 5000;
+    int array_size;
     if(argc == 2){
         array_size = atoi(argv[1]);
         if (array_size <= 0)
@@ -36,7 +29,7 @@ int main(int argc,  char* argv[])
         }
     }
 
-    int original_array[array_size];// = {34, 76, 8, 28, 49, 89, 76, 18, 35, 77};
+    int original_array[array_size];
     int working_array[array_size];
 
     srand(time(NULL));
@@ -46,7 +39,7 @@ int main(int argc,  char* argv[])
     }
 
     float dT;
-    void (*sort_functions[])(int a[], const int n, bool print_output) = {bubble_sort, selection_sort};
+    
     printf("Sort test\n");
     printf("Array size is %i\n\n", array_size);
 
@@ -272,13 +265,11 @@ void _merge_sort(int a[], int inter[], const int start, const int end, bool prin
     _merge_sort(a, inter, middle + 1, end, print_output);
 
     int left = start;
-    int right = middle + 1;
-    //printf("left = %d, right = %d\n",left, right);
+    int right = middle + 1;    
 
     if(print_output)print_intermediate_merge_array(a, start, end, true);
     for(int i = start; i <= end; i++)
     {
-       // printf("    i = %d, left = %d, right = %d\n", i, left, right);
         if(left == middle + 1)
         {
             inter[i] = a[right];
