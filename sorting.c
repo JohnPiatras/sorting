@@ -25,7 +25,7 @@ void merge_sort(int a[], const int n, bool print_output);
 
 int main(int argc,  char* argv[])
 {    
-    int array_size;
+    int array_size = 25;
     if(argc == 2){
         array_size = atoi(argv[1]);
         if (array_size <= 0)
