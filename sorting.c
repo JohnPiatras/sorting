@@ -39,7 +39,7 @@ int main(int argc,  char* argv[])
     srand(time(NULL));
     for (int i= 0 ; i < array_size; i++)
     {
-        original_array[i] = rand_range(100, 1);        
+        original_array[i] = rand_range(999, 1);        
     }
 
     float dT;
@@ -49,8 +49,8 @@ int main(int argc,  char* argv[])
 
     test_sort_function("Bubble Sort", bubble_sort, original_array, array_size);    
     test_sort_function("Selection Sort", selection_sort, original_array, array_size);   
-    test_sort_function("Insertion Sort", insertion_sort, original_array, array_size);   
-    test_sort_function("Merge Sort", merge_sort, original_array, array_size);   
+    test_sort_function("Insertion Sort", insertion_sort, original_array, array_size);      
+    test_sort_function("Merge Sort", merge_sort, original_array, array_size);      
 }
 
 int rand_range(const int m, const int n)
@@ -190,33 +190,22 @@ void insertion_sort(int a[], const int n, bool print_output)
     if(print_output)print_array(a, n, -1, -1);
     for(int i = 1; i < n; i++)
     {
-        comparisons++;            
-        if (a[i] < a[sorted_index])
-        {      
-            if(print_output)print_array(a, n, i, -1);      
-            int new_index = sorted_index;
-            //find first sorted element that is less than current element, a[i]
+        int extracted = a[i];
+        int j = i - 1; //we will campare extracted to the last sorted element        
+        //shifts every sorted element that is greater than a[j] to the right by one
+        if(print_output)print_array(a, n, i, -1);
+        while( extracted < a[j] && j >= 0)
+        {                  
             comparisons++;
-            while(new_index > 0 && a[i] < a[new_index - 1])
-            {
-                comparisons++;
-                new_index--;
-            }                      
-            //first sorted element that is smaller than a[i] is at index j
-
-            int cur_element = a[i];
-            //shift all elements from j to sorted_index right by one
-            for(int j = sorted_index; j >= new_index; j--)
-            {
-                a[j + 1] = a[j];                
-            }
-            a[new_index] = cur_element;
-            insertions++;
-            if(print_output)print_array(a, n, -1, new_index);
+            a[j + 1] = a[j];
+            if(print_output)print_array(a, n, j , j + 1);
+            j--;
         }
-        
-        sorted_index++;
-    }    
+        //we exited the while loop because extracted > a[j] or j < 0
+        a[j + 1] = extracted;
+        insertions++;
+    }
+
     if(print_output)
     {
         print_array(a, n, -1, -1);
@@ -258,47 +247,61 @@ void print_intermediate_merge_array(int a[], const int start, const int end, con
     printf("\n");
 }
 
-void _merge_sort(int a[], int inter[], const int start, const int end, bool print_output)
+
+
+void _merge_sort(int a[], int temp[], const int start, const int end, bool print_output)
 {    
     if(end <= start)
     {
         return;
     }    
     int middle = (start + end) / 2;    
-    _merge_sort(a, inter, start, middle, print_output);
-    _merge_sort(a, inter, middle + 1, end, print_output);
+    _merge_sort(a, temp, start, middle, print_output);
+    _merge_sort(a, temp, middle + 1, end, print_output);
 
-    int left = start;
-    int right = middle + 1;    
-
+    int left = start;   //current index of left array
+    int right = middle + 1; //current index of right array
+    int i = start;  //current index in our main array
     if(print_output)print_intermediate_merge_array(a, start, end, true);
-    for(int i = start; i <= end; i++)
+
+    //place elements from either left, or right array into 
+    //our intermediate array in correct order until one of
+    //the left or right arrays has no elements left
+    while ( left < (middle + 1) && right < (end + 1) )
     {
-        if(left == middle + 1)
+        if(a[left] < a[right])
         {
-            inter[i] = a[right];
-            right++;
-        }
-        else if(right == end + 1)
-        {
-            inter[i] = a[left];
-            left++;
-        }
-        else if (a[left] < a[right])
-        {
-            inter[i] = a[left];
+            temp[i] = a[left];
             left++;
         }
         else
         {
-            inter[i] = a[right];
+            temp[i] = a[right];
             right++;
         }
+        i++;
     }
 
+    //these two loops copy the remainder of which ever of the left or right
+    //arrays has elements left into the remainder of our intermediate array
+    while( left < (middle + 1) )
+    {
+        temp[i] = a[left];
+        left++;
+        i++;
+    }
+
+    while( right < (end + 1) )
+    {
+        temp[i] = a[right];
+        right++;
+        i++;
+    }
+
+    //copy our now sorted elements from the intermediate array into the main array
     for(int i = start; i <= end; i++)
     {
-        a[i] = inter[i];
+        a[i] = temp[i];
     }
 
     if(print_output)print_intermediate_merge_array(a, start, end, false);
@@ -306,10 +309,10 @@ void _merge_sort(int a[], int inter[], const int start, const int end, bool prin
 
 void merge_sort(int a[], const int n, bool print_output)
 {
-    int inter[n];
+    int temp[n];
     
     if(print_output)print_intermediate_merge_array(a, 0, n - 1, false);
 
-    _merge_sort(a, inter, 0, n - 1, print_output);
+    _merge_sort(a, temp, 0, n - 1, print_output);
 
 }
