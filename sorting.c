@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <stdbool.h>
+#include <math.h>
 
 // colour codes courtesy of https://stackoverflow.com/questions/3219393/stdlib-and-colored-output-in-c/3219471
 #define ANSI_COLOR_RED     "\x1b[31m"
@@ -22,6 +23,7 @@ void bubble_sort(int a[], const int n, bool print_output);
 void selection_sort(int a[], const int n, bool print_output);
 void insertion_sort(int a[], const int n, bool print_output);
 void merge_sort(int a[], const int n, bool print_output);
+void heap_sort(int a[], const int n, bool print_output);
 
 int main(int argc,  char* argv[])
 {    
@@ -51,6 +53,7 @@ int main(int argc,  char* argv[])
     test_sort_function("Selection Sort", selection_sort, original_array, array_size);   
     test_sort_function("Insertion Sort", insertion_sort, original_array, array_size);      
     test_sort_function("Merge Sort", merge_sort, original_array, array_size);      
+    test_sort_function("Heap Sort", heap_sort, original_array, array_size);      
 }
 
 int rand_range(const int m, const int n)
@@ -316,3 +319,104 @@ void merge_sort(int a[], const int n, bool print_output)
     _merge_sort(a, temp, 0, n - 1, print_output);
 
 }
+
+#define PARENT(i) ((i - 1) / 2)
+#define LINE_WIDTH 100
+void print_binary_tree(int tree[], int n)
+{
+    int print_pos[n];
+    int i, j, k, pos, x=1, level=0;
+
+    print_pos[0] = 0;
+    for(i=0,j=1; i<n; i++,j++) {
+        pos = print_pos[PARENT(i)] + (i%2?-1:1)*(LINE_WIDTH/(pow(2,level+1))+1);
+
+        for (k=0; k<pos-x; k++) printf("%c",i==0||i%2?' ':'-');
+        printf("%d",tree[i]);
+
+        print_pos[i] = x = pos+1;
+        if (j==pow(2,level)) {
+            printf("\n");
+            level++;
+            x = 1;
+            j = 0;
+        }
+    }
+    printf("\n\n\n");
+}
+
+//in a heap sort we start by treating our array as a 'complete binary tree'
+//This has the special properties of being a binary tree and of having its
+//leaf elements leaning to the left. The last leaf element does not need to
+//have a right sibling so this the complete tree does not have to be a full 
+//binary tree.
+//The complete binary tree has this relationship between array indices and 
+//tree elements:
+//for a given array index i, its left child is 2i+1 and the right child is 
+//2i+2.
+//The parent of any given element at i is (i - 1) / 2 rounded down.
+//In a heap the largest element is at the root and its children are smaller
+//than their parent - this relationship continues down the tree.
+//This is a max-heap. A min heap has the opposite relationship.
+
+//this function heapify this sub-tree whose root is at array index i
+//We then recursively 
+void heapify(int a[], int n, int i)
+{
+    int largest = i; //will store index of largest amoung heap root, left child and right child
+    int left = 2 * i + 1;   //left child index
+    int right = 2 * i + 2;  //right child index
+
+    //now determine which is largest
+    if(left < n && a[left] > a[largest])
+        largest = left;
+    if(right < n && a[right] > a[largest])
+        largest = right;
+    
+    //if largest is not root (i) then swap them
+    if(largest != i)
+    {
+        int t = a[i];
+        a[i] = a[largest];
+        a[largest] = t;
+        //as we have swapped these elements there is no garauntee that
+        //the subtree whose root is index give by 'largest' is currently
+        //heapified, so heapify it
+        heapify(a, n, largest);
+    }
+    
+}
+
+void heap_sort(int a[], const int n, bool print_output)
+{
+    //we start heapifying our tree from the last non-leaf node.
+    //In our complete tree this node has index n/2 - 1
+    if(print_output)printf("Heapifying\n");
+    for(int i = n / 2 - 1; i >= 0; i--)
+    {
+        if(print_output)print_binary_tree(a, n);
+        heapify(a, n, i);
+    }
+    if(print_output)print_binary_tree(a, n);
+
+    //We have a max heap, therefore the largest element in the 
+    //array is the root element at i = 0
+    //So, we swap this to the end of the array then re-heapify the
+    //root but with the array length n now given as 1 shorter.
+    if(print_output)printf("\nSorting\n");
+    for(int i = n - 1; i >= 0; i--)
+    {
+        int t = a[0];
+        a[0] = a[i];
+        a[i] = t;
+        if(print_output)print_binary_tree(a, n);
+        heapify(a, i, 0);
+        if(print_output)print_binary_tree(a, n);
+        if(print_output)printf("\n");        
+    }
+    if(print_output)print_array(a, n, -1, -1);
+
+}
+
+
+
