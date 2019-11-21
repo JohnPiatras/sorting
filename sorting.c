@@ -345,6 +345,89 @@ void print_binary_tree(int tree[], int n)
     printf("\n\n\n");
 }
 
+
+
+/*              
+                                             000
+                       _______________________|_______________________
+                      |                                               |
+                     000                                             000
+           ___________|___________                         ___________|___________
+          |                       |                       |                       |
+         000                     000                     000                     000       
+     _____|_____             _____|_____             _____|_____             _____|_____
+    |           |           |           |           |           |           |           |
+   000         000         000         000         000         000         000         000
+  __|__       __|__       __|__       __|__       __|__       __|__       __|__       __|__
+ |     |     |     |     |     |     |     |     |     |     |     |     |     |     |     |
+001   002   003   004   005   006   007   008   001   002   003   004   005   006   007   008
+*/
+
+#define NODE_WIDTH 3
+void print_chars(int n, char c)
+{
+    for(int i = 0; i < n; i++)
+    {
+        printf("%c", c);
+    }
+}
+
+void print_connectors(int spacing, int indent, int nodes)
+{
+    for(int i = 0; i < nodes / 2; i++)
+    {
+        print_chars(1 + indent + NODE_WIDTH / 2, ' ');
+        print_chars(1 + indent + NODE_WIDTH / 2, '_');
+        printf("|");
+        print_chars(1 + indent + NODE_WIDTH / 2, '_');
+        print_chars(1 + NODE_WIDTH + spacing / 2, ' ');
+    }
+    printf("\n");
+
+    print_chars(indent + NODE_WIDTH / 2,' ');
+    for(int i = 0; i < nodes; i++)
+    {
+        printf("|");
+        print_chars(spacing + 2 * (NODE_WIDTH / 2), ' ');
+    
+    }
+    printf("\n");
+
+}
+
+void print_heap(int a[], int n, int i_green, int i_red)
+{
+    int h = log2(n);
+    //loop from levels of tree, starting at root
+    int i = 0; //index of current node
+    for(int l = 0; l <=h; l++)
+    {
+        int d = h - l; //distance from leaf node level
+        
+        int spacing = (pow(2,d + 1) - 1) * NODE_WIDTH;
+        int indent = (pow(2, d) - 1) * NODE_WIDTH;
+        int nodes = pow(2, l); //number of nodes at this level
+        if(l > 0)print_connectors(spacing, indent, nodes);
+
+        
+        print_chars(indent, ' ');        
+        for(int j = 0; j < nodes && i < n; j++)
+        {
+            if(i == i_red)
+                printf(ANSI_COLOR_RED);
+            else if( i == i_green)
+                printf(ANSI_COLOR_GREEN);                
+                
+            printf("%03i", a[i]);
+            printf(ANSI_COLOR_RESET);
+            print_chars(spacing, ' ');
+            i++;
+        }
+        printf("\n");        
+    }
+    printf("\n");
+
+}
 //in a heap sort we start by treating our array as a 'complete binary tree'
 //This has the special properties of being a binary tree and of having its
 //leaf elements leaning to the left. The last leaf element does not need to
@@ -361,7 +444,7 @@ void print_binary_tree(int tree[], int n)
 
 //this function heapify this sub-tree whose root is at array index i
 //We then recursively 
-void heapify(int a[], int n, int i)
+void heapify(int a[], int n, int i, bool print_output)
 {
     int largest = i; //will store index of largest amoung heap root, left child and right child
     int left = 2 * i + 1;   //left child index
@@ -374,15 +457,25 @@ void heapify(int a[], int n, int i)
         largest = right;
     
     //if largest is not root (i) then swap them
+    if(print_output)printf("Called heapify with root node index %i...", i);    
     if(largest != i)
     {
+        
+        if(print_output)
+        {
+            printf("\nSwapping node at %i and node at %i\n", i, largest);
+            print_heap(a, n, largest, i);
+        }
         int t = a[i];
         a[i] = a[largest];
         a[largest] = t;
+        if(print_output)print_heap(a, n, i, -1);
         //as we have swapped these elements there is no garauntee that
         //the subtree whose root is index give by 'largest' is currently
-        //heapified, so heapify it
-        heapify(a, n, largest);
+        //heapified, so heapify it        
+        heapify(a, n, largest, print_output);
+    }else{
+        if(print_output)printf("no swaps.\n");
     }
     
 }
@@ -391,30 +484,62 @@ void heap_sort(int a[], const int n, bool print_output)
 {
     //we start heapifying our tree from the last non-leaf node.
     //In our complete tree this node has index n/2 - 1
-    if(print_output)printf("Heapifying\n");
+    if(print_output)
+    {
+        printf("Heapifying...\n");
+        printf("-------------\n\n");
+    }
+
     for(int i = n / 2 - 1; i >= 0; i--)
     {
-        if(print_output)print_binary_tree(a, n);
-        heapify(a, n, i);
+        heapify(a, n, i, print_output);
     }
-    if(print_output)print_binary_tree(a, n);
+    if(print_output)print_heap(a, n, -1, -1);
 
     //We have a max heap, therefore the largest element in the 
     //array is the root element at i = 0
     //So, we swap this to the end of the array then re-heapify the
-    //root but with the array length n now given as 1 shorter.
-    if(print_output)printf("\nSorting\n");
-    for(int i = n - 1; i >= 0; i--)
+    //root but with the array length n now given as 1 shorter.    
+    if(print_output)
     {
+        printf("\nSorting\n");
+        printf("---------\n\n");
+    }
+
+    int iteration = 0;
+    for(int i = n - 1; i >= 0; i--)
+    {   
+        if(print_output)
+        {        
+            printf("-------------------------------------------------------\n");    
+            printf("///////////////////////////////////////////////////////\n"); 
+            printf("-------------------------------------------------------\n"); 
+            printf("Iteration %i - Swapping root and node at index %i\n", iteration, i);
+            if(print_output)print_heap(a, n, i, 0);
+        }
+        
         int t = a[0];
         a[0] = a[i];
         a[i] = t;
-        if(print_output)print_binary_tree(a, n);
-        heapify(a, i, 0);
-        if(print_output)print_binary_tree(a, n);
-        if(print_output)printf("\n");        
+
+        if(print_output)print_heap(a, n, i, -1);
+
+        if(print_output)
+        {            
+            printf("Heapifying from root to node at %i\n", i - 1);
+            print_heap(a, n, 0, i - 1);
+        }
+        heapify(a, i, 0, print_output);
+        if(print_output)print_heap(a, n, 0, i-1);
+        if(print_output)printf("\n");  
+        iteration++;      
     }
-    if(print_output)print_array(a, n, -1, -1);
+
+    if(print_output)
+    {
+        
+        print_array(a, n, -1, -1);
+    }
 
 }
 
